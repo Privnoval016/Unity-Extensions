@@ -1,6 +1,6 @@
 using System;
 
-namespace Extensions.EntityComponent
+namespace Extensions.Other
 {
 
     public class WrappedField<T>
