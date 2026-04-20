@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.U2D;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
@@ -16,215 +13,150 @@ using UnityEditor.U2D;
 
 namespace Extensions.Utils
 {
+    /**
+     * <summary>
+     * Provides general-purpose utility extensions for Unity functionality.
+     * Includes threading, array manipulation, enum helpers, and editor-only sprite atlas utilities.
+     /// </summary>
+     */
     public static class UnityUtil
     {
-        #region Transforms
-
-        public static void SetRotation(this Transform transform, float rotation)
+        /**
+         * <summary>
+         * Starts a new background thread with the specified action.
+         * </summary>
+         * <param name="action">The action to run on the thread.</param>
+         * <returns>The created thread.</returns>
+         */
+        public static Thread StartThread(Action action)
         {
-            transform.eulerAngles = new Vector3(0, 0, rotation);
+            ThreadStart threadStart = new ThreadStart(action);
+            Thread thread = new Thread(threadStart);
+            thread.Start();
+            return thread;
         }
 
-        public static void SetLocalRotation(this Transform transform, float rotation)
+        /**
+         * <summary>
+         * Converts a <see cref="NBool"/> value to a boolean.
+         * True returns true, False returns false, and Both returns true.
+         * </summary>
+         * <param name="nBool">The nullable bool value.</param>
+         * <returns>The boolean representation.</returns>
+         */
+        public static bool IsTrue(this NBool nBool)
         {
-            transform.localEulerAngles = new Vector3(0, 0, rotation);
+            switch (nBool)
+            {
+                case NBool.True:
+                    return true;
+                case NBool.False:
+                    return false;
+                case NBool.Both:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
-        #endregion
-
-        #region Components
-
-        public static void RemoveComponent<T>(this GameObject gameObject)
-            where T : Component
+        /**
+         * <summary>
+         * Logs a message to the console using Debug.Log.
+         * </summary>
+         * <param name="message">The message to log.</param>
+         */
+        public static void Print(object message)
         {
-            Object.Destroy(gameObject.GetComponent<T>());
+            Debug.Log(message);
         }
 
-        public static T TryAddComponent<T>(this GameObject gameObject)
-            where T : Component
+        /**
+         * <summary>
+         * Converts an array to a string representation with comma-separated values.
+         * </summary>
+         * <typeparam name="T">The type of elements in the array.</typeparam>
+         * <param name="array">The array to convert.</param>
+         * <returns>A string representation of the array.</returns>
+         */
+        public static string ArrayAsString<T>(this T[] array)
         {
-            T component = gameObject.GetComponent<T>();
-            if (component)
-                return component;
-            return gameObject.AddComponent<T>();
+            return string.Join(", ", array.Select(x => x.ToString()).ToArray());
         }
 
-        public static T GetChildComponent<T>(this Transform transform, int childIndex)
+        /**
+         * <summary>
+         * Adds an item to an array, returning a new array with increased size.
+         * </summary>
+         * <typeparam name="T">The type of elements in the array.</typeparam>
+         * <param name="array">The original array.</param>
+         * <param name="item">The item to add.</param>
+         * <returns>A new array containing all original elements plus the new item.</returns>
+         */
+        public static T[] Add<T>(this T[] array, T item)
         {
-            return transform.GetChild(childIndex).GetComponent<T>();
+            T[] newArray = new T[array.Length + 1];
+            Array.Copy(array, newArray, array.Length);
+            newArray[array.Length] = item;
+            return newArray;
         }
 
-        public static RectTransform GetRect(this Component component)
+        /**
+         * <summary>
+         * Removes the first occurrence of an item from an array, returning a new array.
+         * </summary>
+         * <typeparam name="T">The type of elements in the array.</typeparam>
+         * <param name="array">The original array.</param>
+         * <param name="item">The item to remove.</param>
+         * <returns>A new array with the first occurrence of the item removed.</returns>
+         */
+        public static T[] Remove<T>(this T[] array, T item)
         {
-            return component.GetComponent<RectTransform>();
+            List<T> list = new List<T>(array);
+            list.Remove(item);
+            return list.ToArray();
         }
 
-        public static RectTransform GetRect(this GameObject gameObject)
+        /**
+         * <summary>
+         * Teleports a <see cref="CharacterController"/> to a new position by temporarily disabling and re-enabling it.
+         * </summary>
+         * <param name="characterController">The character controller to teleport.</param>
+         * <param name="newPosition">The new position to teleport to.</param>
+         */
+        public static void Teleport(this CharacterController characterController, Vector3 newPosition)
         {
-            return gameObject.GetComponent<RectTransform>();
+            characterController.enabled = false;
+            characterController.transform.position = newPosition;
+            characterController.enabled = true;
         }
 
-        public static Transform DestroyChildren(this Transform transform)
+        /**
+         * <summary>
+         * Removes all delegate listeners from a delegate object.
+         * Useful for cleaning up event subscriptions.
+         * </summary>
+         * <param name="delegateObject">The delegate to clear.</param>
+         */
+        public static void RemoveAllDelegateListeners(this Delegate delegateObject)
         {
-            foreach (Transform child in transform)
-                Object.Destroy(child.gameObject);
+            if (delegateObject == null)
+                return;
 
-            return transform;
+            foreach (Delegate d in delegateObject.GetInvocationList())
+            {
+                delegateObject = Delegate.Remove(delegateObject, d);
+            }
         }
-
-        #endregion
-
-        #region Children
-
-        public static GameObject AddChild(this Transform transform)
-        {
-            GameObject child = new GameObject();
-            child.transform.SetParent(transform);
-            child.transform.localScale = Vector3.one;
-            child.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            return child;
-        }
-
-        public static GameObject AddChild(this Transform transform, String name)
-        {
-            GameObject child = transform.AddChild();
-            child.name = name;
-            return child;
-        }
-
-        #endregion
-
-        #region UI
-
-        public static Button ClearSettings(this Button button)
-        {
-            Navigation navigation = button.navigation;
-            navigation.mode = Navigation.Mode.None;
-            button.navigation = navigation;
-
-            button.transition = Selectable.Transition.None;
-            return button;
-        }
-
-        public static void AddClickListener(this Button button, UnityEngine.Events.UnityAction call)
-        {
-            button.onClick.AddListener(call);
-        }
-
-        public static void SetClickListener(this Button button, UnityEngine.Events.UnityAction call)
-        {
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(call);
-        }
-
-        public static void Reset(this ScrollRect scrollRect)
-        {
-            scrollRect.StopMovement();
-            scrollRect.verticalNormalizedPosition = 1;
-        }
-
-        public static List<RaycastResult> UIRaycast(Vector2 position)
-        {
-            PointerEventData eventData = new PointerEventData(EventSystem.current);
-            eventData.position = position;
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, results);
-            return results;
-        }
-
-        public static void Enable(this CanvasGroup canvasGroup, bool changeAlpha = true)
-        {
-            if (changeAlpha)
-                canvasGroup.alpha = 1;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-        }
-
-        public static void Disable(this CanvasGroup canvasGroup, bool changeAlpha = true)
-        {
-            if (changeAlpha)
-                canvasGroup.alpha = 0;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-        }
-
-        #endregion
-
-        #region UI Positioning
-
-        public static Vector2 GetPosition(this RectTransform rect, float scale)
-        {
-            return ((Vector2)rect.position / scale)
-                   + (new Vector2(0.5f, 0.5f) - rect.pivot) * rect.sizeDelta;
-        }
-
-        public static float GetWidth(this RectTransform rect)
-        {
-            return rect.rect.size.x * rect.lossyScale.x;
-        }
-
-        public static float GetHeight(this RectTransform rect)
-        {
-            return rect.rect.size.y * rect.lossyScale.y;
-        }
-
-        public static Vector2 GetSize(this RectTransform rect)
-        {
-            return rect.rect.size * rect.lossyScale;
-        }
-
-        public static bool Contains(this RectTransform rect, Vector2 point)
-        {
-            Vector2 size = rect.GetSize();
-            Vector2 position = rect.position;
-            return point.x > position.x - size.x / 2
-                   && point.x < position.x + size.x / 2
-                   && point.y > position.y - size.y / 2
-                   && point.y < position.y + size.y / 2;
-        }
-
-        public static bool Contains(this RectTransform rect, Vector2 point, float padding)
-        {
-            Vector2 size = rect.GetSize();
-            Vector2 position = rect.position;
-            return point.x > position.x - size.x / 2 - padding
-                   && point.x < position.x + size.x / 2 + padding
-                   && point.y > position.y - size.y / 2 - padding
-                   && point.y < position.y + size.y / 2 + padding;
-        }
-
-        public static bool LaterallyContains(this RectTransform rect, Vector2 point, float padding)
-        {
-            Vector2 size = rect.GetSize();
-            Vector2 position = rect.position;
-            return point.x > position.x - size.x / 2 - padding
-                   && point.x < position.x + size.x / 2 + padding;
-        }
-
-        public static void SetLeft(this RectTransform rect, float left)
-        {
-            rect.offsetMin = rect.offsetMin.WithX(left);
-        }
-
-        public static void SetRight(this RectTransform rect, float right)
-        {
-            rect.offsetMax = rect.offsetMax.WithX(-right);
-        }
-
-        public static void SetTop(this RectTransform rect, float top)
-        {
-            rect.offsetMax = rect.offsetMax.WithY(-top);
-        }
-
-        public static void SetBottom(this RectTransform rect, float bottom)
-        {
-            rect.offsetMin = rect.offsetMin.WithY(bottom);
-        }
-
-        #endregion
 
         #region Line Renderers
 
+        /**
+         * <summary>
+         * Sets all color keys in a <see cref="LineRenderer"/>'s gradient to a specified color.
+         /// </summary>
+         * <param name="lineRenderer">The line renderer to modify.</param>
+         * <param name="color">The color to set.</param>
+         */
         public static void SetAllColorKeys(this LineRenderer lineRenderer, Color color)
         {
             Gradient colorGradient = lineRenderer.colorGradient;
@@ -238,6 +170,13 @@ namespace Extensions.Utils
             lineRenderer.colorGradient = colorGradient;
         }
 
+        /**
+         * <summary>
+         * Sets all alpha keys in a <see cref="LineRenderer"/>'s gradient to a specified alpha value.
+         /// </summary>
+         * <param name="lineRenderer">The line renderer to modify.</param>
+         * <param name="alpha">The alpha value to set (0-1).</param>
+         */
         public static void SetAllAlphaKeys(this LineRenderer lineRenderer, float alpha)
         {
             Gradient colorGradient = lineRenderer.colorGradient;
@@ -253,57 +192,43 @@ namespace Extensions.Utils
 
         #endregion
 
-        #region Audio Sources
-
-        public static void RandomizeTime(this AudioSource source)
-        {
-            source.time = source.clip.length * RandomUtil.RandomUFloat();
-        }
-
-        public static void PlayRandomly(this AudioSource source)
-        {
-            source.RandomizeTime();
-            source.Play();
-        }
-
-        #endregion
-
-        #region Other
-
-        public static void Teleport(this CharacterController characterController, Vector3 newPosition)
-        {
-            characterController.enabled = false;
-            characterController.transform.position = newPosition;
-            characterController.enabled = true;
-        }
-
-        public static void RemoveAllDelegateListeners(this Delegate delegateObject)
-        {
-            if (delegateObject == null)
-                return;
-
-            foreach (Delegate d in delegateObject.GetInvocationList())
-            {
-                delegateObject = Delegate.Remove(delegateObject, d);
-            }
-        }
-
-        #endregion
-
         #region Sprite Atlases
 
 #if UNITY_EDITOR
+        /**
+         * <summary>
+         * Clears all packable objects from a <see cref="SpriteAtlas"/>.
+         /// Only available in the Unity Editor.
+         /// </summary>
+         * <param name="atlas">The sprite atlas to clear.</param>
+         */
         public static void ClearPackables(this SpriteAtlas atlas)
         {
             atlas.Remove(atlas.GetPackables());
         }
 
+        /**
+         * <summary>
+         * Sets the packable objects for a <see cref="SpriteAtlas"/>, replacing any existing ones.
+         /// Only available in the Unity Editor.
+         /// </summary>
+         * <param name="atlas">The sprite atlas to modify.</param>
+         * <param name="objects">The objects to add to the atlas.</param>
+         */
         public static void SetPackables(this SpriteAtlas atlas, Object[] objects)
         {
             atlas.Remove(atlas.GetPackables());
             atlas.Add(objects);
         }
 
+        /**
+         * <summary>
+         * Sets the texture compression settings for a <see cref="SpriteAtlas"/>.
+         /// Only available in the Unity Editor.
+         /// </summary>
+         * <param name="atlas">The sprite atlas to modify.</param>
+         * <param name="compression">The compression mode to apply.</param>
+         */
         public static void SetImporterCompression(
             this SpriteAtlas atlas,
             TextureImporterCompression compression
@@ -318,133 +243,14 @@ namespace Extensions.Utils
 #endif
 
         #endregion
-
-        #region Textures
-
-        public static Texture2D ToTexture2D(this RenderTexture rTexture)
-        {
-            Texture2D tex = new Texture2D(rTexture.width, rTexture.height, TextureFormat.ARGB32, false);
-            RenderTexture oldActiveTexture = RenderTexture.active;
-            RenderTexture.active = rTexture;
-            tex.ReadPixels(new Rect(0, 0, rTexture.width, rTexture.height), 0, 0);
-            tex.Apply();
-            RenderTexture.active = oldActiveTexture;
-            return tex;
-        }
-
-        public static Texture2D FixPremultipliedAlpha(this Texture2D texture)
-        {
-            Color32[] data = texture.GetPixels32();
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (data[i].a == 0 || data[i].a == byte.MaxValue)
-                    continue;
-
-                data[i].r = (data[i].r / (data[i].a / 255f)).ClampToByte();
-                data[i].g = (data[i].g / (data[i].a / 255f)).ClampToByte();
-                data[i].b = (data[i].b / (data[i].a / 255f)).ClampToByte();
-            }
-
-            texture.SetPixels32(data);
-            texture.Apply();
-            return texture;
-        }
-
-        public static Texture2D FadeEdges(this Texture2D texture, float fading, float corner)
-        {
-            Color32[] data = texture.GetPixels32();
-            Vector2 halfTextureSize = new Vector2(texture.width / 2f, texture.height / 2f);
-            for (int i = 0; i < data.Length; i++)
-            {
-                int x = i % texture.width;
-                int y = i / texture.width;
-
-                float xDist = -(Mathf.Abs(x - halfTextureSize.x) - halfTextureSize.x);
-                float yDist = -(Mathf.Abs(y - halfTextureSize.y) - halfTextureSize.y);
-                float total = xDist + yDist;
-                float distance = Mathf.Min(xDist, yDist);
-
-                float fade = distance / fading;
-
-                if (total / MathUtil.SQRT_2 < corner + fading)
-                {
-                    fade = Mathf.Min(fade, (total / MathUtil.SQRT_2 - corner) / fading);
-                }
-
-                fade = Mathf.Clamp01(fade);
-                if (fade != 1)
-                    data[i].a = (data[i].a * EaseUtil.Ease(fade, 2, true)).ClampToByte();
-            }
-
-            texture.SetPixels32(data);
-            texture.Apply();
-            return texture;
-        }
-
-        #endregion
-
-        public static Thread StartThread(Action action)
-        {
-            ThreadStart threadStart = new ThreadStart(action);
-            Thread thread = new Thread(threadStart);
-            thread.Start();
-            return thread;
-        }
-        
-        public static T GetOrAddComponent<T>(this GameObject gameObject)
-            where T : Component
-        {
-            T component = gameObject.GetComponent<T>();
-            if (component == null)
-            {
-                component = gameObject.AddComponent<T>();
-            }
-            return component;
-        }
-        
-        public static bool IsTrue(this NBool nBool)
-        {
-            //returns true if nBool is True, false if nBool is False
-            
-            switch (nBool)
-            {
-                case NBool.True:
-                    return true;
-                case NBool.False:
-                    return false;
-                case NBool.Both:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        
-        public static void Print(object message)
-        {
-            Debug.Log(message);
-        }
-        
-        public static string ArrayAsString<T>(this T[] array)
-        {
-            return string.Join(", ", array.Select(x => x.ToString()).ToArray());
-        }
-
-        public static T[] Add<T>(this T[] array, T item)
-        {
-            T[] newArray = new T[array.Length + 1];
-            Array.Copy(array, newArray, array.Length);
-            newArray[array.Length] = item;
-            return newArray;
-        }
-        
-        public static T[] Remove<T>(this T[] array, T item)
-        {
-            List<T> list = new List<T>(array);
-            list.Remove(item);
-            return list.ToArray();
-        }
     }
     
+    /**
+     * <summary>
+     * A tri-state boolean enum that can be True, False, or Both.
+     * Useful for optional boolean parameters or tri-state logic.
+     * </summary>
+     */
     public enum NBool
     {
         False,

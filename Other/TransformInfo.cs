@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Extensions.Utils
+namespace Extensions.Other
 {
     [Serializable]
     public struct TransformInfo

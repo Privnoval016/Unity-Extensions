@@ -1,11 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Unity.Mathematics;
 
 namespace Extensions.Utils
 {
+    /**
+     * <summary>
+     * Provides comprehensive mathematical utility extensions for vector operations, transformations, and calculations.
+     * Includes vector rotations, conversions, swizzling, easing functions, and specialized mathematical operations.
+     * </summary>
+     */
     public static class MathUtil
     {
         public static readonly float SQRT_2 = Mathf.Sqrt(2);
@@ -32,18 +34,6 @@ namespace Extensions.Utils
         public static Vector3 Rotate(this Vector3 vec, float degAngle, Vector3 axis)
         {
             return Quaternion.AngleAxis(degAngle, axis) * vec;
-        }
-
-        /*
-         * Rotates a float2 by a given angle
-         * @param vec: The float2 to rotate
-         * @param angle: The angle to rotate by
-         */
-        public static float2 Rotate(this float2 vec, float angle)
-        {
-            float sin = math.sin(angle * Mathf.Deg2Rad);
-            float cos = math.cos(angle * Mathf.Deg2Rad);
-            return new float2(vec.x * cos - vec.y * sin, vec.x * sin + vec.y * cos);
         }
 
         /*
@@ -194,31 +184,6 @@ namespace Extensions.Utils
             return new Vector2Int(vec.x, vec.y);
         }
 
-        public static int2 ToInt2(this Vector2Int vec)
-        {
-            return new int2(vec.x, vec.y);
-        }
-
-        public static Vector2Int ToVector2Int(this int2 vec)
-        {
-            return new Vector2Int(vec.x, vec.y);
-        }
-
-        public static Vector2 ToVector2(this int2 vec)
-        {
-            return new Vector2(vec.x, vec.y);
-        }
-
-        public static float2 ToFloat2(this Vector2 vec)
-        {
-            return new float2(vec.x, vec.y);
-        }
-
-        public static Vector2 ToVector2(this float2 vec)
-        {
-            return new Vector2(vec.x, vec.y);
-        }
-
         /**
          * Retrieves the angle of a Vector2
          */
@@ -325,20 +290,6 @@ namespace Extensions.Utils
         public static bool EqualsPositiveInfinity(this Vector2 vec)
         {
             return float.IsPositiveInfinity(vec.x) && float.IsPositiveInfinity(vec.y);
-        }
-
-        public static int2 SwapAxes(this int2 vec, bool shouldFlip = true)
-        {
-            if (shouldFlip)
-                return new int2(vec.y, vec.x);
-            return vec;
-        }
-
-        public static float2 SwapAxes(this float2 vec, bool shouldFlip = true)
-        {
-            if (shouldFlip)
-                return new float2(vec.y, vec.x);
-            return vec;
         }
 
         public static float Max(this Vector2 vec)
