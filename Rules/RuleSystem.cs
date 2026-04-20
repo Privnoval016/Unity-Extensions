@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Extensions.Patterns
+namespace Extensions.Rules
 {
     public class RuleSystem<TContext, TResult>
     {

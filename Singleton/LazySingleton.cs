@@ -1,6 +1,6 @@
 using System;
 
-namespace Extensions.Patterns
+namespace Extensions.Singleton
 {
     /**
      * <summary>

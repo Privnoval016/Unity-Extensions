@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Extensions.Patterns
+namespace Extensions.Rules
 {
     public interface IRuleBucket { }
     

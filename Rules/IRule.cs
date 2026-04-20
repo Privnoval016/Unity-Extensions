@@ -1,5 +1,5 @@
 
-namespace Extensions.Patterns
+namespace Extensions.Rules
 {
     /**
      * <summary>
