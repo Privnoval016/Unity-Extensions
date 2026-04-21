@@ -5,14 +5,11 @@ namespace Extensions.Singleton
     public class Singleton<T> : MonoBehaviour where T : Component
     {
         private static T _instance;
-        private static bool _isQuitting;
 
         public static T Instance
         {
             get
             {
-                if (_isQuitting) return null;
-
                 if (_instance == null)
                 {
                     _instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
@@ -43,22 +40,8 @@ namespace Extensions.Singleton
 
         protected virtual void OnDestroy()
         {
-            // Avoid clearing the instance if Unity is quitting or domain is reloading
-            if (_instance == this && !_isQuitting)
+            if (_instance == this)
                 _instance = null;
-        }
-
-        protected virtual void OnApplicationQuit()
-        {
-            _isQuitting = true;
-        }
-
-        // Reset static state after domain reload (Unity 2019.3+)
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics()
-        {
-            _instance = null;
-            _isQuitting = false;
         }
     }
 }
