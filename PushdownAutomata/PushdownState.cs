@@ -2,12 +2,15 @@ using UnityEngine;
 
 namespace Extensions.PushdownAutomata
 {
-    public abstract class PushdownState
+    public abstract class PushdownState<T> where T : MonoBehaviour
     {
         public bool doNotRemove = false;
 
-        public virtual void OnStateEnter(MonoBehaviour parent)
+        protected T Host;
+
+        public void OnStateEnter(T parent)
         {
+            Host = parent;
             OnEnter();
         }
 

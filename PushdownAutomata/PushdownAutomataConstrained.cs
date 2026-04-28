@@ -4,12 +4,18 @@ using UnityEngine;
 
 namespace Extensions.PushdownAutomata
 {
-    public class PushdownAutomata<T> : MonoBehaviourUpdatable where T : MonoBehaviour
+    /**
+     * <summary>
+     * A more constrained version of PushdownAutomata that enforces type safety on states.
+     * </summary>
+     */
+    public class PushdownAutomata<THost, TState> : MonoBehaviourUpdatable 
+                                                   where THost : MonoBehaviour where TState : PushdownState<THost>
     {
-        private readonly Stack<PushdownState<T>> _currentState = new();
-        public readonly T Parent;
+        private readonly Stack<TState> _currentState = new();
+        public readonly THost Parent;
 
-        public PushdownAutomata(T parent) : base(parent.gameObject)
+        public PushdownAutomata(THost parent) : base(parent.gameObject)
         {
             Parent = parent;
         }
@@ -38,13 +44,13 @@ namespace Extensions.PushdownAutomata
             }
         }
 
-        public void ChangeState(PushdownState<T> newState)
+        public void ChangeState(TState newState)
         {
             RemoveTop();
             AddNewState(newState);
         }
 
-        public void Interrupt(PushdownState<T> newState)
+        public void Interrupt(TState newState)
         {
             _currentState.Peek().OnInterrupt();
             AddNewState(newState);
@@ -70,14 +76,14 @@ namespace Extensions.PushdownAutomata
                 _currentState.Peek().OnResume();
         }
 
-        public PushdownState<T> GetCurrentState()
+        public TState GetCurrentState()
         {
             return _currentState?.Count > 0 ? _currentState.Peek() : null;
         }
         
-        public bool IsState<TState>() where TState : PushdownState<T>
+        public bool IsState<TState2>() where TState2 : TState
         {
-            return _currentState.Count > 0 && _currentState.Peek() is TState;
+            return _currentState.Count > 0 && _currentState.Peek() is TState2;
         }
 
         private void RemoveTop()
@@ -89,7 +95,7 @@ namespace Extensions.PushdownAutomata
             }
         }
 
-        private void AddNewState(PushdownState<T> newState)
+        private void AddNewState(TState newState)
         {
             _currentState.Push(newState);
             _currentState.Peek().OnStateEnter(Parent);
@@ -135,4 +141,3 @@ namespace Extensions.PushdownAutomata
         }
     }
 }
-
