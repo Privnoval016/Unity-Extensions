@@ -1,9 +1,3 @@
-//define ODIN
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Extensions.Logic
 {
     /**
@@ -14,34 +8,5 @@ namespace Extensions.Logic
     public interface ICondition<in TContext>
     {
         bool Evaluate(TContext context);
-        
-#if ODIN_INSPECTOR
-        #region Odin Dropdown Helpers
-        
-        public static IEnumerable<ValueDropdownItem> GetBroadcastStrategies()
-        {
-            // Top-priority composites first
-            yield return new ValueDropdownItem("* AND Condition *", new AndCondition<QuestOutcome>());
-            yield return new ValueDropdownItem("* OR Condition *", new OrCondition<QuestOutcome>());
-            yield return new ValueDropdownItem("* NOT Condition *", new NotCondition<QuestOutcome>());
-
-            // Dynamically add all other condition types
-            var allTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(ICondition<QuestOutcome>).IsAssignableFrom(t)
-                            && !t.IsAbstract
-                            && t != typeof(AndCondition<QuestOutcome>)
-                            && t != typeof(OrCondition<QuestOutcome>)
-                            && t != typeof(NotCondition<QuestOutcome>));
-
-            foreach (var t in allTypes)
-            {
-                yield return new ValueDropdownItem(t.Name, (ICondition<QuestOutcome>)Activator.CreateInstance(t));
-            }
-        }
-        
-        #endregion
-#endif
-        
     }
 }
