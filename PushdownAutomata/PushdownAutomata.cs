@@ -63,9 +63,10 @@ namespace Extensions.PushdownAutomata
         {
             while (_currentState.Count > 0 && !_currentState.Peek().doNotRemove)
             {
+                _currentState.Peek().OnExit();
                 _currentState.Pop();
             }
-            
+
             if (_currentState.Count > 0)
                 _currentState.Peek().OnResume();
         }
@@ -99,6 +100,7 @@ namespace Extensions.PushdownAutomata
         {
             while (_currentState.Count > 0 && !_currentState.Peek().doNotRemove)
             {
+                _currentState.Peek().OnExit();
                 _currentState.Pop();
             }
         }
