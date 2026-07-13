@@ -1,5 +1,4 @@
 ﻿using System;
-using Extensions.Timers;
 
 namespace Extensions.Modifiers
 {
@@ -19,24 +18,35 @@ namespace Extensions.Modifiers
     
         public event Action<Modifier<T>> OnDisposed = delegate { };
 
-        private readonly CountdownTimer timer;
-    
+        private readonly IModifierDuration duration;
+
         public Modifier(T key, IModifierStrategy strategy, float duration = 0f, int priority = 0)
         {
             Key = key;
             Strategy = strategy;
             Priority = priority;
-        
+
             if (duration <= 0f) return;
-        
-            timer = new CountdownTimer(duration);
-            timer.OnTimerStop += () => MarkedForRemoval = true;
-            timer.Start();
+
+            this.duration = new TimerModifierDuration(duration);
         }
-    
+
+        public Modifier(T key, IModifierStrategy strategy, IModifierDuration duration, int priority = 0)
+        {
+            Key = key;
+            Strategy = strategy;
+            Priority = priority;
+            this.duration = duration;
+        }
+
         public void Update()
         {
-            timer?.Tick();
+            duration?.Tick();
+
+            if (duration is { IsFinished: true })
+            {
+                MarkedForRemoval = true;
+            }
         }
 
         public void Handle(object sender, QueryContext<T> queryContext)
