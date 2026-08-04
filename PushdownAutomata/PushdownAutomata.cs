@@ -4,12 +4,34 @@ using UnityEngine;
 
 namespace Extensions.PushdownAutomata
 {
-    public class PushdownAutomata<T> : MonoBehaviourUpdatable where T : MonoBehaviour
+    public class PushdownAutomata<T> : MonoBehaviourUpdatable where T : class
     {
         private readonly Stack<PushdownState<T>> _currentState = new();
         public readonly T Parent;
 
-        public PushdownAutomata(T parent) : base(parent.gameObject)
+        /**
+         * <summary>
+         * Creates a machine that drives itself from the Unity loop, attaching an updater to the
+         * parent's GameObject. If the parent is not a MonoBehaviour there is nothing to attach to,
+         * so the machine is driven externally and the caller must tick it.
+         * </summary>
+         */
+        public PushdownAutomata(T parent) : base((parent as MonoBehaviour)?.gameObject)
+        {
+            Parent = parent;
+        }
+
+        /**
+         * <summary>
+         * Creates a machine with an explicit choice of who drives it. Pass true to opt out of the
+         * Unity loop and tick it yourself, which is what you want when the machine has to run at a
+         * precise point relative to other systems rather than whenever Unity gets to it.
+         * </summary>
+         * <param name="parent">Host the states receive.</param>
+         * <param name="externallyDriven">True to attach no updater and require manual ticking.</param>
+         */
+        public PushdownAutomata(T parent, bool externallyDriven)
+            : base(externallyDriven ? null : (parent as MonoBehaviour)?.gameObject)
         {
             Parent = parent;
         }
@@ -107,7 +129,7 @@ namespace Extensions.PushdownAutomata
 
         public void PrintStates()
         {
-            string output = Parent.name + " States: ";
+            string output = ((Parent as UnityEngine.Object)?.name ?? Parent.GetType().Name) + " States: ";
 
             foreach (var state in _currentState.ToArray())
             {

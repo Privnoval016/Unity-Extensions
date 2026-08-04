@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Extensions.PushdownAutomata
 {
-    public abstract class PushdownState<T> where T : MonoBehaviour
+    public abstract class PushdownState<T> where T : class
     {
         public bool doNotRemove = false;
 
