@@ -37,7 +37,9 @@ namespace Extensions.Modifiers
 
             mod.OnDisposed += _ =>
             {
-                modifiers.Remove(mod);
+                // By reference: Modifier equality is key + strategy type, so Remove would take the first
+                // look-alike (e.g. a permanent +10 when a +5 buff expires).
+                modifiers.RemoveAll(m => ReferenceEquals(m, mod));
                 OnModifiersChanged?.Invoke();
             };
 
