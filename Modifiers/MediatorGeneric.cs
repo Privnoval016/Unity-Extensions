@@ -14,6 +14,9 @@ namespace Extensions.Modifiers
     public class Mediator<TQueryKey, TValue> where TQueryKey : IQueryKey<TQueryKey>
     {
         private readonly List<Modifier<TQueryKey, TValue>> modifiers = new();
+
+        /** <summary>The registered modifiers in resolution order, for display; register and remove through the methods.</summary> */
+        public IReadOnlyList<Modifier<TQueryKey, TValue>> Modifiers => modifiers;
         private long nextRegistrationSequence;
 
         public Action OnModifiersChanged = delegate { };

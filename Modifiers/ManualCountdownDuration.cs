@@ -8,7 +8,7 @@ namespace Extensions.Modifiers
      * headless or otherwise non-real-time-driven simulation.
      * </summary>
      */
-    public class ManualCountdownDuration : IModifierDuration
+    public class ManualCountdownDuration : IModifierDuration, ICountdownDuration
     {
         private int _remainingTicks;
 
@@ -21,6 +21,8 @@ namespace Extensions.Modifiers
         }
 
         public bool IsFinished => _remainingTicks <= 0;
+
+        public int Remaining => _remainingTicks;
 
         public void Tick()
         {

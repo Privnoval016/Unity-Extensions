@@ -28,6 +28,9 @@ namespace Extensions.Modifiers
 
         public bool MarkedForRemoval { get; set; }
 
+        /** <summary>How long this modifier lasts; null for permanent.</summary> */
+        public IModifierDuration Duration => duration;
+
         public event Action<Modifier<TQueryKey, TValue>> OnDisposed = delegate { };
 
         private readonly IModifierDuration duration;
