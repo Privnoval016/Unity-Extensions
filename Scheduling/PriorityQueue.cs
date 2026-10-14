@@ -53,6 +53,15 @@ namespace Extensions.Scheduling
 
         #region Public API
 
+        /** <summary>An independent queue holding the same items at the same priorities, ties still broken by when each was first enqueued here.</summary> */
+        public PriorityQueue<TItem> Clone()
+        {
+            var clone = new PriorityQueue<TItem>(_indexByItem.Comparer) { _nextSequence = _nextSequence };
+            clone._heap.AddRange(_heap);
+            foreach (var pair in _indexByItem) clone._indexByItem[pair.Key] = pair.Value;
+            return clone;
+        }
+
         /**
          * <summary>Adds an item to the queue at the given priority. Lower priority dequeues first.</summary>
          * <param name="item">The item to enqueue. Must not already be present in the queue.</param>
