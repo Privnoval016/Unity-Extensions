@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Extensions.Logic
 {
+    /** <summary>True when every child is; an empty slot is skipped, so no children reads as true.</summary> */
     [Serializable]
     public class AndCondition<TContext> : ICondition<TContext>, ISubjectReader
     {
@@ -14,12 +15,13 @@ namespace Extensions.Logic
         {
             foreach (var child in children)
             {
-                if (!child.Evaluate(context))
+                if (child != null && !child.Evaluate(context))
                     return false;
             }
             return true;
         }
         
+        /** <inheritdoc /> */
         public bool TryCollectSubjects(ICollection<IConditionSubject> subjects) => ConditionSubjects.TryCollectAll(children, subjects);
 
         public override string ToString()

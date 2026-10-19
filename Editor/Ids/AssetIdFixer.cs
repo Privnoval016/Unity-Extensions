@@ -14,7 +14,7 @@ namespace Extensions.EditorTools
 
         /** <summary>Fixes every identified asset's id, from the menu.</summary> */
         [MenuItem("Tools/Asset Ids/Fix Asset Ids")]
-        public static void FixAllFromMenu() => FixAll();
+        private static void FixAllFromMenu() => FixAll();
 
         /** <summary>Plans and writes ids across every identified asset in the project.</summary> <returns>The assets whose id changed.</returns> */
         public static List<ScriptableObject> FixAll(ICollection<string> justImported = null) => Fix(IdentifiedAssetDatabase.FindAll(), justImported);

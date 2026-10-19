@@ -33,11 +33,20 @@ namespace Extensions.EditorTools
             if (string.IsNullOrEmpty(typename)) return null;
             var split = typename.IndexOf(' ');
             if (split < 0) return null;
-            return Type.GetType($"{typename.Substring(split + 1)}, {typename.Substring(0, split)}");
+            return Type.GetType($"{typename.Substring(split + 1).Replace('/', '+')}, {typename.Substring(0, split)}");
         }
 
         /** <summary>A readable label for a type: its name with spaces before capitals.</summary> */
-        public static string Label(Type type) => type == null ? "None" : ObjectNames.NicifyVariableName(type.Name);
+        public static string Label(Type type)
+        {
+            if (type == null) return NoneLabel;
+            var name = type.Name;
+            var tick = name.IndexOf('`');
+            return ObjectNames.NicifyVariableName(tick < 0 ? name : name.Substring(0, tick));
+        }
+
+        /** <summary>The label for no type.</summary> */
+        public const string NoneLabel = "None";
 
         #endregion
 

@@ -30,6 +30,14 @@ A condition is an `ICondition<TContext>`. Conditions shared across systems (ques
 - **Change-driven checks.** When a subject changes, the registry's `NotifyChanged(subject)` announces it, and only
   the conditions that read it need checking again. A condition that doesn't say what it reads is checked after any
   change, so custom conditions still work.
+- **`ConditionWatcher`** watches one condition over a set of facts and calls back when its result changes, checking
+  it only when something it reads changes. Locks, reactions and gated rewards all use it; dispose it when done.
+- **One moment's facts.** `Facts.Of<IDefeatedFoe>(foe)` makes a set holding one fact source, and
+  `Facts.Layered(top, bottom)` reads the top set first, then the bottom one. This is how an event's own details
+  (which foe fell) reach a condition alongside the world's facts. `Facts.None` is the empty set.
+- **And / Or / Not skip empty slots.** An empty And holds, an empty Or doesn't, and a Not with no child doesn't.
+- **`NumberComparison`** (at least, equal, below) and `NumberComparisons.Holds` serve conditions on counts, levels and
+  flags.
 
 ## Asset ids
 
@@ -67,6 +75,9 @@ resolver (Addressables, say) can replace it behind `IAssetResolver`.
 - is in every catalog.
 
 A build fails on a missing or shared id. *Tools > Asset Ids > Fix Asset Ids* fixes them all now.
+
+**In data,** an id converts to and from its hex text through a type converter, so serializers that honour type
+converters (Newtonsoft does) write it as text with no setup.
 
 ## The type picker
 

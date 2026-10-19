@@ -1,15 +1,17 @@
 using System;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace Extensions.Ids
 {
-    /** <summary>A stable id for an asset, so saves, quests and tools can point at it: 32 lower-case hex digits, filled in by the editor.</summary> */
+    /** <summary>A stable id for an asset, so other data can point at it: 32 lower-case hex digits, filled in by the editor.</summary> */
     [Serializable]
+    [TypeConverter(typeof(AssetIdTypeConverter))]
     public struct AssetId : IEquatable<AssetId>
     {
         #region Inspector Fields
 
-        [Tooltip("Filled in by the editor when the asset is created. Never edit it: saves and other assets point at it.")]
+        [Tooltip("Filled in by the editor when the asset is created. Never edit it: other data points at it.")]
         [SerializeField] private string value;
 
         #endregion

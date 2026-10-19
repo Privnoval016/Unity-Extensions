@@ -38,7 +38,7 @@ namespace Extensions.EditorTools
         {
             var menu = new GenericMenu();
             var target = property.Copy();
-            menu.AddItem(new GUIContent("None"), current == null, () => Assign(target, null));
+            menu.AddItem(new GUIContent(SubclassTypes.NoneLabel), current == null, () => Assign(target, null));
             foreach (var type in SubclassTypes.For(SubclassTypes.FromManagedReferenceName(property.managedReferenceFieldTypename)))
             {
                 var chosen = type;
