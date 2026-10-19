@@ -1,0 +1,12 @@
+namespace Extensions.Ids
+{
+    /**
+     * <summary>A ScriptableObject that saves, quests and tools can point at by id. It holds one serialized <see cref="AssetId" /> field, which the
+     * editor fills in and keeps unique.</summary>
+     */
+    public interface IIdentifiedAsset
+    {
+        /** <summary>The asset's id. Empty until the editor assigns it.</summary> */
+        AssetId AssetId { get; }
+    }
+}

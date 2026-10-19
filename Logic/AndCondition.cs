@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Extensions.Logic
 {
     [Serializable]
-    public class AndCondition<TContext> : ICondition<TContext>
+    public class AndCondition<TContext> : ICondition<TContext>, ISubjectReader
     {
         [SerializeReference] 
         public List<ICondition<TContext>> children = new();
@@ -20,6 +20,8 @@ namespace Extensions.Logic
             return true;
         }
         
+        public bool TryCollectSubjects(ICollection<IConditionSubject> subjects) => ConditionSubjects.TryCollectAll(children, subjects);
+
         public override string ToString()
         {
             return "* AND Condition *";

@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Extensions.Logic
 {
     [Serializable]
-    public class NotCondition<TContext> : ICondition<TContext>
+    public class NotCondition<TContext> : ICondition<TContext>, ISubjectReader
     {
         [SerializeReference] 
         public ICondition<TContext> child;
@@ -13,6 +14,8 @@ namespace Extensions.Logic
         {
             return !child.Evaluate(context);
         }
+
+        public bool TryCollectSubjects(ICollection<IConditionSubject> subjects) => ConditionSubjects.TryCollect(child, subjects);
 
         public override string ToString()
         {
