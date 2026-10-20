@@ -66,10 +66,10 @@ public sealed class ItemDefinition : ScriptableObject, IIdentifiedAsset
 **Each import loads only the changed files** and those sharing their ids, and the project is scanned once per
 session. When a type gains `IIdentifiedAsset`, its existing assets get ids after the next compile.
 
-**Builds find assets by id through an `AssetCatalog`** (*Create > Privnoval > Asset Ids > Asset Catalog*), resolved through
-`IAssetResolver`. The editor keeps every catalog filled: on import, before every build, and from
-*Tools > Privnoval > Asset Ids > Rebuild Asset Catalog*. The catalog references the assets, so they stay loaded. An on-demand
-resolver (Addressables, say) can replace it behind `IAssetResolver`.
+**Builds find assets by id through an `AssetCatalog`** (*Create > Privnoval > Asset Ids > Asset Catalog*),
+resolved through `IAssetResolver`. The editor keeps every catalog filled: on import, before every build, and from
+*Tools > Privnoval > Asset Ids > Rebuild Asset Catalog*. The catalog references the assets, so they stay loaded. An
+on-demand resolver (Addressables, say) can replace it behind `IAssetResolver`.
 
 **The audit** (*Tools > Privnoval > Asset Ids > Audit Asset Ids*) checks that each identified asset:
 
