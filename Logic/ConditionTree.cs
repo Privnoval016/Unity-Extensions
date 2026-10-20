@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Extensions.Logic
 {
@@ -32,8 +34,13 @@ namespace Extensions.Logic
     {
         #region Private Fields
 
-        /** <summary>How deep a walk goes before it stops, so a tree that contains itself can't hang a tool.</summary> */
+        /** <summary>How deep a walk goes before it stops.</summary> */
         private const int MaxDepth = 64;
+
+        /** <summary>How deep a summary goes before it writes "…".</summary> */
+        private const int MaxSummaryDepth = 12;
+
+        [ThreadStatic] private static int _summaryDepth;
 
         #endregion
 
@@ -43,40 +50,69 @@ namespace Extensions.Logic
         public static ICompositeCondition<TContext> CompositeOf<TContext>(ICondition<TContext> condition) => condition as ICompositeCondition<TContext>;
 
         /** <summary>Visits every part that isn't a composite, with how it is used. Empty slots are skipped.</summary> */
-        public static void VisitLeaves<TContext>(ICondition<TContext> condition, Action<ICondition<TContext>, LeafUse> visit) => Visit(condition, true, true, 0, visit);
+        public static void VisitLeaves<TContext>(ICondition<TContext> condition, Action<ICondition<TContext>, LeafUse> visit) =>
+            Visit(condition, true, true, new HashSet<object>(ByReference.Instance), visit);
 
         /** <summary>A short summary of a condition, for tools: its own text, or its type's name when it has none; "none" for an empty slot.</summary> */
         public static string Summarize<TContext>(ICondition<TContext> condition)
         {
             if (condition == null) return "none";
-            var text = condition.ToString();
-            var type = condition.GetType();
-            if (text != type.ToString()) return text;
-            var tick = type.Name.IndexOf('`');
-            return tick < 0 ? type.Name : type.Name.Substring(0, tick);
+            if (_summaryDepth >= MaxSummaryDepth) return "…";
+            _summaryDepth++;
+            try
+            {
+                var text = condition.ToString();
+                var type = condition.GetType();
+                if (!string.IsNullOrEmpty(text) && text != type.ToString()) return text;
+                var tick = type.Name.IndexOf('`');
+                return tick < 0 ? type.Name : type.Name.Substring(0, tick);
+            }
+            finally
+            {
+                _summaryDepth--;
+            }
         }
 
         #endregion
 
         #region Helpers
 
-        private static void Visit<TContext>(ICondition<TContext> condition, bool asItself, bool required, int depth, Action<ICondition<TContext>, LeafUse> visit)
+        /** <summary>Walks a part, skipping any composite already on the path so a tree that contains itself ends.</summary> */
+        private static void Visit<TContext>(ICondition<TContext> condition, bool asItself, bool required, HashSet<object> path, Action<ICondition<TContext>, LeafUse> visit)
         {
-            if (condition == null || depth > MaxDepth) return;
+            if (condition == null || path.Count > MaxDepth) return;
             var composite = CompositeOf(condition);
             if (composite == null)
             {
                 visit(condition, new LeafUse(asItself, required));
                 return;
             }
+            if (!path.Add(composite)) return;
             var parts = 0;
             foreach (var child in composite.Children)
                 if (child != null) parts++;
             var childAsItself = composite.Rule == CompositeRule.Not ? !asItself : asItself;
-            // Every part is needed when the parts all must hold as read: All read as itself, or Any negated (not (a or b) is not a and not b).
-            var everyPart = composite.Rule == CompositeRule.Not || parts == 1 || (composite.Rule == CompositeRule.All) == asItself;
+            var everyPart = NeedsEveryPart(composite.Rule, parts, asItself);
             foreach (var child in composite.Children)
-                Visit(child, childAsItself, required && everyPart, depth + 1, visit);
+                Visit(child, childAsItself, required && everyPart, path, visit);
+            path.Remove(composite);
+        }
+
+        /**
+         * <summary>True when the whole holds only if every part reads as it is read: an All read as itself, an Any
+         * negated (not (a or b) is not a and not b), a Not, or a composite of one part.</summary>
+         */
+        private static bool NeedsEveryPart(CompositeRule rule, int parts, bool asItself) =>
+            rule == CompositeRule.Not || parts == 1 || (rule == CompositeRule.All) == asItself;
+
+        /** <summary>Compares by reference, whatever a type's own equality says.</summary> */
+        private sealed class ByReference : IEqualityComparer<object>
+        {
+            public static readonly ByReference Instance = new ByReference();
+
+            public new bool Equals(object x, object y) => ReferenceEquals(x, y);
+
+            public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
         }
 
         #endregion

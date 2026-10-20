@@ -62,6 +62,22 @@ namespace Extensions.Tests
             Assert.That(Uses(deep), Is.Empty, "a tree deeper than the limit is cut off, not walked");
         }
 
+        [Test, Timeout(5000)]
+        public void ATreeThatContainsItself_IsWalkedAndSummarizedWithoutEnding()
+        {
+            var and = new AndCondition<int> { children = { N("a") } };
+            and.children.Add(new NotCondition<int> { child = and });
+            Assert.That(Uses(and).Keys, Is.EquivalentTo(new[] { "a" }), "each part once, then the loop is cut");
+            Assert.That(ConditionTree.Summarize(and), Does.Contain("…"), "a summary stops at a depth");
+        }
+
+        [Test]
+        public void APartWithNoText_IsSummarizedByItsType()
+        {
+            Assert.That(ConditionTree.Summarize(N("")), Is.EqualTo("Named"));
+            Assert.That(ConditionTree.Summarize(N(null)), Is.EqualTo("Named"));
+        }
+
         [Test]
         public void Summaries_ReadAsWords()
         {

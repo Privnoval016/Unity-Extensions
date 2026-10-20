@@ -19,8 +19,18 @@ namespace Extensions.Logic
         /** <inheritdoc /> */
         public bool TryCollectSubjects(ICollection<IConditionSubject> subjects) => ConditionSubjects.TryCollect(child, subjects);
 
+        [NonSerialized] private ICondition<TContext>[] _children;
+
         /** <inheritdoc /> */
-        public IReadOnlyList<ICondition<TContext>> Children => new[] { child };
+        public IReadOnlyList<ICondition<TContext>> Children
+        {
+            get
+            {
+                _children ??= new ICondition<TContext>[1];
+                _children[0] = child;
+                return _children;
+            }
+        }
 
         /** <inheritdoc /> */
         public CompositeRule Rule => CompositeRule.Not;
