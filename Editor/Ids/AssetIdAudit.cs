@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Ids;
+using Extensions.Menus;
 using UnityEditor;
 using UnityEngine;
 
@@ -79,7 +80,7 @@ namespace Extensions.EditorTools
 
         #region Helpers
 
-        [MenuItem("Tools/Asset Ids/Audit Asset Ids")]
+        [MenuItem(AssetIdMenus.Tools + "Audit Asset Ids", priority = ToolMenus.Commands + 1)]
         private static void RunFromMenu()
         {
             var issues = Run();

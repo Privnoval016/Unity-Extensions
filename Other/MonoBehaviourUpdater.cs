@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Extensions.Other
 {
+    [AddComponentMenu("")]
     public class MonoBehaviourUpdater : MonoBehaviour
     {
         private MonoBehaviourUpdatable updatable;

@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using Extensions.Ids;
+using Extensions.Menus;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace Extensions.EditorTools
         #region Public API
 
         /** <summary>Rebuilds every catalog in the project.</summary> <returns>How many catalogs changed.</returns> */
-        [MenuItem("Tools/Asset Ids/Rebuild Asset Catalog")]
+        [MenuItem(AssetIdMenus.Tools + "Rebuild Asset Catalog", priority = ToolMenus.Commands)]
         public static int RebuildAll() => Rebuild(FindCatalogs(), IdentifiedAssetDatabase.FindAll());
 
         /**

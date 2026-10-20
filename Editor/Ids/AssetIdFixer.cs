@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using Extensions.Ids;
+using Extensions.Menus;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace Extensions.EditorTools
         #region Public API
 
         /** <summary>Fixes every identified asset's id, from the menu.</summary> */
-        [MenuItem("Tools/Asset Ids/Fix Asset Ids")]
+        [MenuItem(AssetIdMenus.Tools + "Fix Asset Ids", priority = ToolMenus.Commands + 2)]
         private static void FixAllFromMenu() => FixAll();
 
         /** <summary>Plans and writes ids across every identified asset in the project.</summary> <returns>The assets whose id changed.</returns> */

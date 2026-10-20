@@ -66,22 +66,35 @@ public sealed class ItemDefinition : ScriptableObject, IIdentifiedAsset
 **Each import loads only the changed files** and those sharing their ids, and the project is scanned once per
 session. When a type gains `IIdentifiedAsset`, its existing assets get ids after the next compile.
 
-**Builds find assets by id through an `AssetCatalog`** (*Create > Asset Ids > Asset Catalog*), resolved through
+**Builds find assets by id through an `AssetCatalog`** (*Create > Privnoval > Asset Ids > Asset Catalog*), resolved through
 `IAssetResolver`. The editor keeps every catalog filled: on import, before every build, and from
-*Tools > Asset Ids > Rebuild Asset Catalog*. The catalog references the assets, so they stay loaded. An on-demand
+*Tools > Privnoval > Asset Ids > Rebuild Asset Catalog*. The catalog references the assets, so they stay loaded. An on-demand
 resolver (Addressables, say) can replace it behind `IAssetResolver`.
 
-**The audit** (*Tools > Asset Ids > Audit Asset Ids*) checks that each identified asset:
+**The audit** (*Tools > Privnoval > Asset Ids > Audit Asset Ids*) checks that each identified asset:
 
 - has one id field;
 - has an id;
 - has a unique id;
 - is in every catalog.
 
-A build fails on a missing or shared id. *Tools > Asset Ids > Fix Asset Ids* fixes them all now.
+A build fails on a missing or shared id. *Tools > Privnoval > Asset Ids > Fix Asset Ids* fixes them all now.
 
 **In data,** an id converts to and from its hex text through a type converter, so serializers that honour type
 converters (Newtonsoft does) write it as text with no setup.
+
+## Menus
+
+Every Privnoval tool puts its entries under one heading, under its own name, the same way in all three menus:
+
+| Menu | Path | Holds |
+|---|---|---|
+| Tools | *Tools > Privnoval > (tool)* | Windows first, then commands after a separator |
+| Create | *Create > Privnoval > (tool)* | Its assets |
+| Add Component | *Add Component > Privnoval > (tool)* | Its components. Components that code adds itself are hidden |
+
+`ToolMenus` holds the heading and the two priorities (`Windows`, `Commands`). Each tool keeps its own paths in one
+small class built from it (`AssetIdMenus`, `QuestMenus`, `SaveMenus`), so no path is typed twice.
 
 ## The type picker
 

@@ -9,7 +9,7 @@ namespace Extensions.Ids
      * <summary>Every identified asset in the project, listed by the editor so a build can find an asset from its id.</summary>
      * <remarks>The editor rebuilds it on import and before every build. It holds references, so the assets it lists load with it.</remarks>
      */
-    [CreateAssetMenu(menuName = "Asset Ids/Asset Catalog", fileName = "AssetCatalog")]
+    [CreateAssetMenu(menuName = AssetIdMenus.Create + "Asset Catalog", fileName = "AssetCatalog")]
     public sealed class AssetCatalog : ScriptableObject, IAssetResolver
     {
         #region Inspector Fields
