@@ -156,7 +156,7 @@ namespace Extensions.Tests
             AssetIdFixer.FixAll();
             AssetCatalogBuilder.Rebuild(new[] { catalog }, IdentifiedAssetDatabase.FindAll());
 
-            var issues = AssetIdAudit.Run().Where(issue => AssetDatabase.GetAssetPath(issue.Asset).StartsWith(Folder, StringComparison.Ordinal)).ToList();
+            var issues = AssetIdAudit.Run(new[] { catalog }).Where(issue => AssetDatabase.GetAssetPath(issue.Asset).StartsWith(Folder, StringComparison.Ordinal)).ToList();
             Assert.That(issues, Is.Empty, string.Join("\n", issues));
         }
 

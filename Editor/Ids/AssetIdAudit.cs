@@ -53,8 +53,11 @@ namespace Extensions.EditorTools
     {
         #region Public API
 
-        /** <summary>Runs the audit.</summary> */
-        public static List<AssetIdIssue> Run()
+        /** <summary>Runs the audit against every catalog in the project.</summary> */
+        public static List<AssetIdIssue> Run() => Run(AssetCatalogBuilder.FindCatalogs());
+
+        /** <summary>Runs the audit, checking that every identified asset is listed in each of the given catalogs.</summary> */
+        public static List<AssetIdIssue> Run(IEnumerable<AssetCatalog> catalogs)
         {
             var assets = IdentifiedAssetDatabase.FindAll();
             var issues = new List<AssetIdIssue>();
@@ -67,7 +70,7 @@ namespace Extensions.EditorTools
             foreach (var group in assets.Where(asset => AssetIds.TryGetId(asset, out _)).GroupBy(AssetIds.IdOf).Where(group => group.Count() > 1))
                 issues.AddRange(group.Select(asset => new AssetIdIssue(AssetIdProblem.Duplicate, asset)));
 
-            foreach (var catalog in AssetCatalogBuilder.FindCatalogs())
+            foreach (var catalog in catalogs)
             {
                 var listed = new HashSet<ScriptableObject>(catalog.Assets);
                 issues.AddRange(assets.Where(asset => AssetIds.TryGetId(asset, out _) && !listed.Contains(asset))
