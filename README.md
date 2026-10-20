@@ -36,6 +36,10 @@ A condition is an `ICondition<TContext>`. Conditions shared across systems (ques
   `Facts.Layered(top, bottom)` reads the top set first, then the bottom one. This is how an event's own details
   (which foe fell) reach a condition alongside the world's facts. `Facts.None` is the empty set.
 - **And / Or / Not skip empty slots.** An empty And holds, an empty Or doesn't, and a Not with no child doesn't.
+- **Walking a tree, for tools.** And / Or / Not are `ICompositeCondition<T>` (their parts and whether they need all,
+  any or none of them). `ConditionTree.VisitLeaves` visits every other part with how it is used: negated or not, and
+  required or one of several ways. `ConditionTree.Summarize` gives a one-line summary: a condition's `ToString`, or
+  its type name when it has none. Write a short `ToString` on your conditions so tools can show them.
 - **`NumberComparison`** (at least, equal, below) and `NumberComparisons.Holds` serve conditions on counts, levels and
   flags.
 
