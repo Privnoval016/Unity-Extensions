@@ -6,7 +6,7 @@ namespace Extensions.Utils
     /**
      * <summary>
      * Provides utility extensions for collections like dictionaries and lists.
-     * Includes inverse lookup operations and a circular list wrapper.
+     * Includes inverse lookup operations, a reference membership check and a circular list wrapper.
      * </summary>
      */
     public static class CollectionUtil
@@ -59,6 +59,27 @@ namespace Extensions.Utils
             }
 
             key = default;
+            return false;
+        }
+
+        /**
+         * <summary>
+         * Whether a list holds this exact object (reference equality: an overridden <c>Equals</c> or <c>==</c> is
+         * never consulted). Walks by index, so nothing is allocated.
+         * </summary>
+         * <typeparam name="T">The type of elements in the list.</typeparam>
+         * <param name="items">The list to search; null holds nothing.</param>
+         * <param name="item">The object to look for; null finds a null entry.</param>
+         * <returns>true if the list holds the object; otherwise, false.</returns>
+         */
+        public static bool Has<T>(this IReadOnlyList<T> items, T item) where T : class
+        {
+            if (items == null) return false;
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (ReferenceEquals(items[i], item)) return true;
+            }
+
             return false;
         }
     }
