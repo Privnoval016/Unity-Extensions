@@ -12,8 +12,9 @@ namespace Extensions.Tests
     {
         private const string Folder = "Assets/AssetQueryTestTemp";
 
-        [TearDown]
-        public void TearDown() => AssetDatabase.DeleteAsset(Folder);
+        /** <summary>Before and after each test, so a run that died midway leaves nothing for the next to find.</summary> */
+        [SetUp, TearDown]
+        public void Clear() => AssetDatabase.DeleteAsset(Folder);
 
         private static T Create<T>(string folder, string name) where T : ScriptableObject
         {

@@ -9,7 +9,7 @@ Unity-SaveSystem, Unity-QuestSystem) build on.
 | `Logic/` | Composable conditions (`ICondition<T>`, And / Or / Not), plus the facts conditions read (below) |
 | `Ids/` | Stable asset ids, the asset catalog (below) |
 | `Inspector/` | `[SubclassPicker]`, a type menu for `[SerializeReference]` fields (below) |
-| `Modifiers/`, `Rules/`, `Timers/`, `Scheduling/`, `PushdownAutomata/`, `Singleton/`, `EntityComponent/`, `Patterns/`, `Utils/`, `Other/` | Modifiers and mediators, rules, timers, a priority queue, a stack state machine, singletons, an entity/component base, patterns, utilities |
+| `Modifiers/`, `Rules/`, `Timers/`, `Scheduling/`, `PushdownAutomata/`, `Singleton/`, `EntityComponent/`, `Patterns/`, `Utils/`, `Other/` | Modifiers and mediators, rules, timers, a priority queue, a stack state machine, singletons, an entity/component base, patterns, utilities (among them `CollectionUtil.Has`, whether a list holds this exact object, by reference and allocating nothing, and `EaseUtil.Damp` / `DampAngle`) |
 
 Assemblies:
 

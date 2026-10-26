@@ -65,7 +65,7 @@ namespace Extensions.Utils
         /**
          * <summary>
          * Whether a list holds this exact object (reference equality: an overridden <c>Equals</c> or <c>==</c> is
-         * never consulted). Walks by index, so nothing is allocated.
+         * never consulted, so a destroyed Unity object is not taken for null). Walks by index, so nothing is allocated.
          * </summary>
          * <typeparam name="T">The type of elements in the list.</typeparam>
          * <param name="items">The list to search; null holds nothing.</param>
