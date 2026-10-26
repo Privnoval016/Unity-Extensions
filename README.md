@@ -14,7 +14,8 @@ Unity-SaveSystem, Unity-QuestSystem) build on.
 Assemblies:
 
 - `Extensions` (auto-referenced);
-- `Extensions.Editor` (editor only: the id tooling and the type picker's drawer);
+- `Extensions.Editor` (editor only: the id tooling, the type picker's drawer, and `AssetQuery`: `All<T>` and `First<T>` find
+  a type's assets, in given folders or anywhere, and `EnsureFolder` makes a folder and its missing parents);
 - `Extensions.Tests` (EditMode tests, compiled only with tests included).
 
 ## Conditions and facts

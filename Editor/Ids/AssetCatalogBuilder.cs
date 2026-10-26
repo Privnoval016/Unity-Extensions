@@ -11,12 +11,6 @@ namespace Extensions.EditorTools
     /** <summary>Fills every <see cref="AssetCatalog" /> in the project with every identified asset that has an id.</summary> */
     public static class AssetCatalogBuilder
     {
-        #region Private Fields
-
-        private const string CatalogFilter = "t:" + nameof(AssetCatalog);
-
-        #endregion
-
         #region Public API
 
         /** <summary>Rebuilds every catalog in the project.</summary> <returns>How many catalogs changed.</returns> */
@@ -60,10 +54,7 @@ namespace Extensions.EditorTools
         }
 
         /** <summary>Every catalog asset in the project.</summary> */
-        public static List<AssetCatalog> FindCatalogs() => AssetDatabase.FindAssets(CatalogFilter)
-            .Select(guid => AssetDatabase.LoadAssetAtPath<AssetCatalog>(AssetDatabase.GUIDToAssetPath(guid)))
-            .Where(catalog => catalog != null)
-            .ToList();
+        public static List<AssetCatalog> FindCatalogs() => AssetQuery.All<AssetCatalog>().ToList();
 
         #endregion
     }
