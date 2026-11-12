@@ -53,6 +53,18 @@ namespace Extensions.Tests
         }
 
         [Test]
+        public void Named_IsTheAssetOfTheTypeWithExactlyThatName_OrNullForNone()
+        {
+            var bolt = Create<TestIdentifiedAsset>(Folder, "Bolt");
+            Create<TestIdentifiedAsset>(Folder, "Bolt Heavy");
+            Create<OtherIdentifiedAsset>(Folder, "Spark");
+
+            Assert.That(AssetQuery.Named<TestIdentifiedAsset>("Bolt", Folder), Is.EqualTo(bolt), "not the one whose name only starts so");
+            Assert.That(AssetQuery.Named<TestIdentifiedAsset>("Spark", Folder), Is.Null, "an asset of another type");
+            Assert.That(AssetQuery.Named<TestIdentifiedAsset>("", Folder), Is.Null);
+        }
+
+        [Test]
         public void EnsureFolder_MakesMissingParents_AndKeepsWhatExists()
         {
             var deep = $"{Folder}/A/B";

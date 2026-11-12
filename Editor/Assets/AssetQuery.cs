@@ -30,6 +30,22 @@ namespace Extensions.EditorTools
             return null;
         }
 
+        /** <summary>The asset of type <typeparamref name="T" /> named exactly <paramref name="name" />, in <paramref name="folders" /> if any are given; null for none.</summary> */
+        public static T Named<T>(string name, params string[] folders) where T : Object
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+
+            var filter = $"t:{typeof(T).Name} {name}";
+            var guids = folders is { Length: > 0 } ? AssetDatabase.FindAssets(filter, folders) : AssetDatabase.FindAssets(filter);
+            foreach (var guid in guids)
+            {
+                var asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                if (asset != null && asset.name == name) return asset;
+            }
+
+            return null;
+        }
+
         /** <summary>Makes <paramref name="folder" /> and any missing parents, under Assets or a package.</summary> <returns>The folder.</returns> */
         public static string EnsureFolder(string folder)
         {
